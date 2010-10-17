@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+
+	xmlns:flex="http://www.springframework.org/schema/flex" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+          http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+          http://www.springframework.org/schema/flex 
+          http://www.springframework.org/schema/flex/spring-flex-1.0.xsd">
+
+	<!--
+		_messageBroker 这个名字是写死的。这都是官方文档的配置。我试着改名。里边某处好像用到这个服务名会报错。具体情况没去研究
+		Bootstraps and exposes the BlazeDS MessageBroker
+	-->
+
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping"> 
+     <property name="mappings"> 
+          <value> 
+               /*=_messageBroker 
+          </value> 
+     </property> 
+ 	</bean> 
+ 	<bean id="_messageBroker" class="org.springframework.flex.core.MessageBrokerFactoryBean"/>
+	<bean class="org.springframework.flex.servlet.MessageBrokerHandlerAdapter"/> 
+
+	<!--hibernate config-->
+	
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="configLocation"
+			value="/WEB-INF/config/hibernate.cfg.xml">
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<!-- 表示允许自动提交 -->
+				<prop key="hibernate.connection.autocommit">true </prop>
+			</props>
+		</property>
+	</bean>
+		
+	<!-- lazy initialization exception -->
+	<bean name="openSessionInViewInterceptor" class="org.springframework.orm.hibernate3.support.OpenSessionInViewInterceptor">
+		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="singleSession" value="true" />
+	</bean>
+	
+	<bean id="transactionManage" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="nestedTransactionAllowed" value="true" />
+	</bean>
+	
+	<bean id="authorDAO" class="services.scientist.author.AuthorDAO">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+    
+    <bean id="authorpaperDAO"
+		class="services.scientist.relation.AuthorpaperDAO">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+	
+	<bean id="getAuthorList" class="services.flex.GetAuthorList">
+       <property name="authorDAO" ref="authorDAO"/>
+    </bean>
+    
+    <bean id="getRelation" class="services.flex.GetRelation">
+       <property name="authorpaperDAO" ref="authorpaperDAO"/>
+    </bean>
+
+
+	<!-- 方法一-->
+	<!--
+		<bean id="user"
+		class="org.springframework.flex.remoting.FlexRemotingServiceExporter">
+	-->
+	<!--
+		<property name="messageBroker" ref="mySpringManagedMessageBroker"/>
+	-->
+	<!--  <property name="service" ref="userService"/>-->
+	<!-- </bean>-->
+	<!-- 方法二-->
+	<!-- <bean id="userService" class="com.UserServiceImpl">-->
+	<!--  <flex:remoting-destination /> -->
+	<!-- </bean>-->
+	<!-- 方法三-->
+	<!--
+		bean id="userService" class="com.UserServiceImpl" />
+		<flex:remoting-destination ref="userService" /
+	-->
+	<!--
+		方法一二三是指三种将服务暴露方式 原始的是在remote-config.xml中配置
+		spring-flex提供三种方式不需要改remote-config.xml
+	-->
+
+	<bean id="myService" class="blah.MyServiceImpl" />
+	<flex:remoting-destination ref="myService" />
+
+	<bean id="employeeService" class="services.employee.EmployeeService">
+		<flex:remoting-destination />
+	</bean>
+
+	<bean id="scientistSrv" class="services.flex.GetRelationsImpl"/>
+		<flex:remoting-destination ref="scientistSrv"/>
+		
+	<!-- bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver">
+		</property>
+		<property name="url"
+			value="jdbc:mysql://localhost:3306/scientificnetwork">
+		</property>
+		<property name="username" value="root"></property>
+		<property name="password" value="uestc"></property>
+	</bean>
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">
+					org.hibernate.dialect.MySQLDialect
+				</prop>
+			</props>
+		</property>
+		<property name="mappingResources">
+			<list>
+				<value>services/scientist/author/Author.hbm.xml</value>
+			</list>
+		</property>
+	</bean-->
+	
+	<!-- bean id="daoTxTemplate" abstract="true" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager" ref="transactionManage" />
+		<property name="transactionAttributes">
+			<props>
+			<prop key="create*">
+				PROPAGATION_REQUIRED,ISOLATION_READ_COMMOTTED
+			</prop>
+			<prop key="get*">
+				PROPAGATION_REQUIRED,ISOLATION_READ_COMMOTTED
+			</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<bean id="aDao" parent="daoTxTemplate">
+		<property name="target">
+			<bean class="services.scientist.author.AuthorDAO">
+				<property name="sessionFactory" ref="sessionFactory" />
+			</bean>
+		</property>
+	</bean-->
+	<bean id="TemprelationDAO"
+		class="services.scientist.relation.temprelation.TemprelationDAO">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean></beans>

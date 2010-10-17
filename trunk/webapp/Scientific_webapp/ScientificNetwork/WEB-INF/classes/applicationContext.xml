@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+
+	xmlns:flex="http://www.springframework.org/schema/flex" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+          http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+          http://www.springframework.org/schema/flex 
+          http://www.springframework.org/schema/flex/spring-flex-1.0.xsd">
+
+	<!--hibernate config-->
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="configLocation" value="classpath:hibernate.cfg.xml">
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<!-- 表示允许自动提交 -->
+				<prop key="hibernate.connection.autocommit">true </prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- lazy initialization exception -->
+	<bean name="openSessionInViewInterceptor"
+		class="org.springframework.orm.hibernate3.support.OpenSessionInViewInterceptor">
+		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="singleSession" value="true" />
+	</bean>
+
+	<bean id="baseTransactionProxy"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+		abstract="true">
+		<property name="transactionManager">
+			<ref bean="transactionManager" />
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="cha*">PROPAGATION_REQUIRED</prop>
+				<prop key="update*">PROPAGATION_REQUIRED</prop>
+				<prop key="del*">PROPAGATION_REQUIRED</prop>
+				<prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="nestedTransactionAllowed" value="true" />
+	</bean>
+
+	<bean id="authorDAO" class="services.scientist.author.AuthorDAO">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<bean id="authorpaperDAO" class="services.scientist.relation.AuthorpaperDAO">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<bean id="getAuthorList" class="services.flex.GetAuthorList">
+		<property name="authorDAO" ref="authorDAO" />
+	</bean>
+
+	<bean id="getRelation" class="services.flex.GetRelation">
+		<property name="authorpaperDAO" ref="authorpaperDAO" />
+	</bean>
+
+	<bean id="TemprelationDAO"
+		class="services.scientist.relation.temprelation.TemprelationDAO">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+</beans>

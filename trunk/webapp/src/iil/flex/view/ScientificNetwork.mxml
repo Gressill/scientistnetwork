@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600"
+			   creationComplete="scientistSrv.authorList()" pageTitle="Scientist link">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->		
+		<s:AMFChannel id="myamf" uri="/ScientificNetwork/messagebroker/amf"/>  
+		<s:ChannelSet id="channelSet" channels="{[myamf]}"/>  
+		<s:RemoteObject id="scientistSrv" 
+						destination="scientistSrv" channelSet="{channelSet}"/> 
+		<s:RemoteObject id="srv" 
+						destination="myService" channelSet="{channelSet}"/>  
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import flash.display.Graphics;
+			import flash.geom.*;
+			
+			import iil.flex.component.Relation;
+			
+			import mx.core.*;
+			import mx.events.FlexEvent;
+			
+			public function draw():void{
+				//this.getData.visible = false;
+				var ui:UIComponent =new UIComponent(); //flex 中没有UIcomponent将无法显示				
+				var myRelation:Relation = new Relation(scientistSrv.authorList.lastResult);
+				ui.addChild(myRelation);
+				this.addElement(ui);//UI添加到舞台
+				this.addChild(ui);
+				//ui.addChild(myShape);
+				//this.addChild(ui);//UI添加到舞台
+			}
+//			
+			protected function application1_creationCompleteHandler(event:FlexEvent):void
+			{
+				//srv.getMyEntities();
+				scientistSrv.authorList();
+				//draw();
+			}
+
+		]]>
+	</fx:Script>
+	<s:controlBarContent>
+		
+	</s:controlBarContent>
+	
+	<mx:DataGrid dataProvider="{scientistSrv.authorList.lastResult}"/>
+	<s:Button  id="getData" label="点我啊" click="draw()" x="675" y="445" enabled="true"/>
+</s:Application>
