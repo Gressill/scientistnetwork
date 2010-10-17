@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600" backgroundColor="#000000"  
+			   xmlns:services="services.*"
+			   creationComplete="application_creationCompleteHandler(event)"
+			   pageTitle="Scientist link">
+
+	<fx:Declarations>
+		<s:CallResponder id="testRelationsResult" result="testRelationsResult_resultHandler(event)" fault="testRelationsResult_faultHandler(event)"/>
+		<services:ScientistSrv id="scientistSrv" fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)" showBusyCursor="true">
+			<services:channelSet>
+				<s:ChannelSet>
+					<s:AMFChannel uri="/ScientificNetwork/messagebroker/amf"/>
+				</s:ChannelSet>
+			</services:channelSet>
+		</services:ScientistSrv>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import flash.display.Graphics;
+			import flash.geom.*;
+			
+			import iil.flex.component.Main;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.*;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import valueObjects.Relations;
+
+			var haha:Object = {
+				yufei:["Windows NT File System Internals_1","Windows NT File System Internals_2","Windows NT File System Internals_3"],
+				zhangliang:["Windows NT File System Internals_2"],
+				liuhao:["kmknjjbj"] ,
+				lixiaom:["Windows NT File System Internals_2"],
+				zhaofei:["Windows NT File System Internals_2"],
+				hewenh:["Windows NT File System Internals_2"],
+				lichuncheng:["Windows NT File System Internals_2"],
+				liujingh:["Windows NT File System Internals_2"]
+			}
+			
+			var myRelation:Main;
+			
+			public function draw(sdsd:ArrayCollection):void{
+				//this.getData.visible = false;
+				var ui:UIComponent =new UIComponent(); //flex 中没有UIcomponent将无法显示				
+				myRelation = new Main(sdsd,parent.width); 
+				//var myRelation:Relation = new Relation();
+				ui.addChild(myRelation);
+				this.addElement(ui);//UI添加到舞台
+			}
+
+			public function Inquiry(name:String):void{
+				
+				
+				var data:ArrayCollection;
+				
+				draw(data);
+
+				myRelation.ShowMyRelation(data,name);
+			}
+
+			protected function application_creationCompleteHandler(event:FlexEvent):void
+			{
+				testRelationsResult.token = scientistSrv.testRelations();
+			}
+
+			public function testRelationsResult_resultHandler(event:ResultEvent):* 
+			{ 
+
+				var data:ArrayCollection=event.result as ArrayCollection;
+
+				draw(data);
+			} 
+			private function testRelationsResult_faultHandler(event:FaultEvent):void {
+				Alert.show(event.fault.toString(), "失败");
+			}
+			
+		]]>
+	</fx:Script>
+</s:Application>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600" backgroundColor="#000000"  
+			   xmlns:services="services.*"
+			   initialize="application1_initializeHandler(event)"
+			   creationComplete="application_creationCompleteHandler(event)"
+			   pageTitle="Scientist link" xmlns:valueObjects="valueObjects.*">
+	<s:layout>
+		<s:TileLayout/>
+	</s:layout>
+
+	<fx:Declarations>
+		<s:CallResponder id="testRelationsResult"/>
+		<services:ScientistSrv id="scientistSrv" fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)" showBusyCursor="true">
+			
+			<services:channelSet>
+				<s:ChannelSet>
+					<s:AMFChannel uri="/ScientificNetwork/messagebroker/amf"/>
+				</s:ChannelSet>
+			</services:channelSet>
+			
+		</services:ScientistSrv>
+		<s:CallResponder id="relationsResult" result="relationsResult_resultHandler(event)"/>
+		<valueObjects:Relations id="relations"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import flash.display.Graphics;
+			import flash.geom.*;
+			
+			import iil.flex.component.Main;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.*;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import valueObjects.Relations;
+
+			var myRelation:Main;
+			var userName:String=null;
+			
+			public function draw():void{
+
+				var ui:UIComponent =new UIComponent(); //flex 中没有UIcomponent将无法显示				
+				myRelation = new Main(null,parent.width); 
+
+				ui.addChild(myRelation);
+				this.addElement(ui);//UI添加到舞台
+			}
+
+			protected function application_creationCompleteHandler(event:FlexEvent):void
+			{
+
+			}
+			
+			public function inquiry(name:String):void{	
+				
+				userName = name ;
+				
+				relationsResult.token = scientistSrv.relations(name);
+				
+				
+			}
+			
+
+			protected function relationsResult_resultHandler(event:ResultEvent):void
+			{
+
+				var data:ArrayCollection=event.result as ArrayCollection;
+
+				myRelation.ShowMyRelation (data,userName);
+				
+			}
+
+
+			protected function application1_initializeHandler(event:FlexEvent):void
+			{
+
+				draw();
+				
+			}
+
+		]]>
+	</fx:Script>
+</s:Application>
