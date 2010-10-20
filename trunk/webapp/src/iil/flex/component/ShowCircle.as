@@ -60,12 +60,12 @@
 			//中心圆形
 			var CoreCricle:Sprite = new Sprite();
 			CoreCricle.graphics.beginFill(0x000000,0.4 );
-			CoreCricle.graphics.drawCircle(0,0,cW-14);
+			CoreCricle.graphics.drawCircle(0,0,cW-8);
 			CoreCricle.graphics.endFill();
 			//边框
 			var CoreCricleFra :Sprite = new Sprite();
 			CoreCricleFra.graphics.beginFill(this.color);
-			CoreCricleFra.graphics.drawCircle(0,0,cW-12);
+			CoreCricleFra.graphics.drawCircle(0,0,cW-10);
 			CoreCricleFra.graphics.endFill();
 			//显示名字
 			var txt :TextField  = new TextField();
@@ -94,6 +94,7 @@
 			
 			Circle.addChild(maskTmp);
 		}
+		
 		//添加事件
 		private function AddEvent():void{
 			//监听鼠标移入和移出事件
@@ -101,7 +102,6 @@
 			this.rate=25;
 			
 			//实现拖放
-			addEventListener(MouseEvent.MOUSE_DOWN , MouseDown ,false);
 			maskTmp.addEventListener(MouseEvent.MOUSE_UP , MouseUp ,false);
 			//实现缩放动画效果
 			maskTmp.addEventListener ( MouseEvent.MOUSE_OVER ,MouseOver);

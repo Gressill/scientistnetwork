@@ -28,6 +28,7 @@ package iil.flex.component{
 		
 		private var bkCallClick:Function;
 		
+		
 		public function SpecialButton(width:uint , height:uint , name:String ,fontColor:uint = 0x000000,fontSize:uint =12 ){
 			
 			AddEvent();
