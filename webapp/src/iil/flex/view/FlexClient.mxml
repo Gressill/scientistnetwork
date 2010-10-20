@@ -23,6 +23,7 @@
 			
 		</services:ScientistSrv>
 		<s:CallResponder id="relationsResult" result="relationsResult_resultHandler(event)"/>
+		<s:CallResponder id="relationsResultSixDS" result="relationsResult_Six(event)"/>
 		<valueObjects:Relations id="relations"/>
 	</fx:Declarations>
 	<fx:Script>
@@ -41,8 +42,8 @@
 			
 			import valueObjects.Relations;
 
-			var myRelation:Main;
-			var userName:String=null;
+			public var myRelation:Main;
+			public var userName:String=null;
 			
 			public function draw():void{
 
@@ -51,6 +52,7 @@
 
 				ui.addChild(myRelation);
 				this.addElement(ui);//UI添加到舞台
+				
 			}
 
 			protected function application_creationCompleteHandler(event:FlexEvent):void
@@ -58,15 +60,32 @@
 
 			}
 			
-			public function inquiry(name:String):void{	
+			public function inquiry( name:String):void{	
 				
 				userName = name ;
-				
 				relationsResult.token = scientistSrv.relations(name);
+			}
+			
+			//六度
+			public function sixDs(nameForm:String , nameTo:String):void{
 				
+				userName = nameForm ;
+				relationsResultSixDS.token = scientistSrv.sixDegreeSeparation(nameForm,nameTo);
+
+				inquiry(nameForm);
 				
 			}
 			
+			protected function relationsResult_Six(event:ResultEvent):void
+			{
+
+				var data:ArrayCollection=event.result as ArrayCollection;
+				
+				myRelation.ShowSixDS(data,userName);
+
+				//myRelation.ShowMyRelation (data,userName);
+				
+			}		
 
 			protected function relationsResult_resultHandler(event:ResultEvent):void
 			{

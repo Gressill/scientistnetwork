@@ -12,22 +12,26 @@ package iil.flex.component{
 	import flash.events.KeyboardEvent;
 	import flash.geom.Matrix;
 	import flash.text.TextField;
-	import flash.text.TextFieldType; 
+	import flash.text.TextFieldType;
 	import flash.text.TextFormat;
 	import flash.ui.Mouse;
 	
+	import iil.flex.component.Arrow;
 	import iil.flex.component.SpecialButton;
 	
 	import mx.core.Application;
-	
+	import  mx.controls.Alert ;
 	public class Search extends Sprite{
 		
-		var input :TextField = null ;
+		public var input :TextField = null ;
+		public var inputTo :TextField = null ;
 		
-		var button :SpecialButton = null;
-		 
-		public function Search(){
-			
+		public var button :SpecialButton = null;
+		private var style:Boolean =true;
+		
+		
+		public function Search(style:Boolean =true){
+			this.style=style;
 			 DrawUI();
 			 AddEvent();
 		}
@@ -47,11 +51,56 @@ package iil.flex.component{
  			this.graphics.beginGradientFill(fillType, colors, alphas, ratios, matr, spreadMethod);  
 			this.graphics.drawRoundRect(0,0,w,h,15,15);			
 			
+			
+			if(this.style){
+				//关系搜索
+				RelationSearch();
+			}else{
+				//六度
+				SixDegreesSeparation();
+			}
+		}
+		private function AddEvent():void{
+			
+			this.addEventListener(KeyboardEvent.KEY_UP,Enter);
+			
+		}
+		
+		private function Enter(evt:KeyboardEvent):void{
+			
+			if(evt.keyCode == 13){
+				ButtonClick();
+			}
+			
+		}
+		
+		private function ButtonClick():void{
+			
+			if(this.style){
+				
+				if(input.text!="")
+					Application.application.inquiry(input.text);
+				else
+					Alert.show("please input author name!","Warning");					
+				
+			}else{
+				
+				if(input.text!="" && inputTo.text!="")
+					Application.application.sixDs(input.text,inputTo.text);
+				else
+					
+					Alert.show("please input author name!","Warning");
+			}
+			
+		}
+		
+		//关系是搜索样式
+		public function RelationSearch():void{
 			//搜索框
 			input = CreateTextField (10,32,290,20,true);
 			//input.text ="zi-ke zhang";
 			addChild(input);
-			 
+			
 			//添加搜索按钮
 			button = new SpecialButton(60,24,"Search",0xffffff);
 			//设置button点击回调函数
@@ -61,24 +110,27 @@ package iil.flex.component{
 			addChild(button);
 			
 		}
-		private function AddEvent():void{
+		//六度搜索 
+		public function SixDegreesSeparation ():void{
+			/**/
+			input = CreateTextField (10,32,130,20,true);
+			inputTo = CreateTextField (170,32,120,20,true);
+			addChild(input);
+			addChild(inputTo);
 			
-			this.addEventListener(KeyboardEvent.KEY_UP,Enter);
-			
+			//箭头
+			var arrow:Arrow = new Arrow();
+			arrow.x=145;
+			arrow.y=26;
+			addChild(arrow);
+			//添加搜索按钮
+			button = new SpecialButton(60,24,"SixDS",0xffffff);
+			//设置button点击回调函数
+			button.CallClick = ButtonClick;
+			button.x = 310;
+			button.y=30;
+			addChild(button);		
 		}
-		
-		private function Enter(evt:KeyboardEvent):void{
-			if(evt.keyCode == 13){
-				ButtonClick();
-			}
-		}
-		
-		private function ButtonClick():void{
-
-			Application.application.inquiry(input.text);
-			
-		}
-		
 		
         private function CreateTextField(x:Number, y:Number, width:Number, height:Number , input:Boolean = false ):TextField {
             
