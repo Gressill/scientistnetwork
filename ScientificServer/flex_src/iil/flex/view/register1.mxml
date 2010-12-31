@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	
+	<s:states>
+		<s:State name="hollow"/>
+		<s:State name="default"/>
+		<s:State name="Register"/>
+	</s:states>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			
+			private function init():void{
+				generate.text=generateCheckCode();
+			}
+			
+			//login identifying 
+			private function loginHandler():void{
+				if(user.text==""||pass.text==""){
+					Alert.show("user or pass is empty","tips");
+				}else{
+					if(user.text=="haha"&&pass.text=="haha"
+						&&identify.text.toLowerCase()==generate.text.toLowerCase()){				
+						Alert.show("login is OK","tips");
+						currentState="hollow";				
+					}else{
+						if(identify.text.toLowerCase()!=generate.text.toLowerCase()){
+							Alert.show("indentifyCode is error","tips");
+							generate.text=generateCheckCode();
+						}else{
+							Alert.show("user or pass error","tips");
+						}
+					}
+				}
+			}
+			
+			
+			//clear 
+			private function clearHandler():void{
+				user.text=pass.text=identify.text = "";
+			}
+			
+			//generate identifying coder
+			
+			private function generateCheckCode():String{
+				//init
+				var num:Number;
+				var code:String;
+				var checkCode:String="";
+				
+				for(var i:int=0;i<5;i++){
+					num=Math.round(Math.random()*100000);
+					if(num%2==0){
+						code=String.fromCharCode(48+(num%10));
+					}else{
+						code=String.fromCharCode(65+(num%26));
+					}
+					checkCode +=code;
+				}
+				return checkCode;
+			}
+		]]>
+	</fx:Script>
+	<!-- Set title of the Panel container based on the view state.-->
+	<s:Panel id="loginPanel"
+			 title="Login" title.Register="Register">
+		<s:layout>
+			<s:BasicLayout/>
+		</s:layout>
+		<mx:Form id="loginForm">
+			<mx:FormItem label="Username:">
+				<s:TextInput/>
+			</mx:FormItem>
+			<mx:FormItem label="Password:">
+				<s:TextInput/>
+			</mx:FormItem>
+			<mx:FormItem id="confirm" label="Confirm:" includeIn="Register" width="211">
+				<s:TextInput width="50" id="identify" height="23"/>
+				<s:Label text="identify" height="17"/>
+				<s:Label text="看不清楚 换个~~" click="generateCheckCode()" width="62"/>
+				<s:TextInput width="114"/>
+				<s:Label x="139" y="100" width="48" id="generate"/>
+				<!-- Add a TextInput control to the form for the Register view state. -->
+			</mx:FormItem>
+			<mx:FormItem direction="horizontal">
+				<!-- Use the LinkButton to change view state.-->
+				<mx:Spacer width="100%" id="spacer1"/>
+				<!-- Set label of the control based on the view state.-->
+				<mx:LinkButton id="registerLink"
+							   label="Need to Register?"
+							   label.Register="Return to Login"
+							   click="currentState='Register'"
+							   click.Register="currentState=''"/>
+				<s:Button id="loginButton"
+						  label="Login" label.Register="Register"/>
+			</mx:FormItem>
+		</mx:Form>
+	</s:Panel>
+	
+	<s:Panel id="panel" x="143" y="115" width="350" height="229" title="login" x.hollow="303" y.hollow="162" x.default="306" y.default="210" x.Register="285" y.Register="231">
+		
+		<s:Button id="btnLogin" x="73" y="141" label="login" click="loginHandler()"/>
+		<s:Button id="btnClear" x="167" y="141" label="clear" click="clearHandler()"/>
+		
+		<s:Label x="44" y="31" text="user"/>
+		<s:Label x="44" y="64" text="pass"/>
+		
+		<s:TextInput id="user" x="81" y="31"/>
+		<s:TextInput id="pass" x="81" y="62" displayAsPassword="true"/>
+		<s:Label x="28" y="100" text="identify"/>
+		<s:Label x="195" y="100" text="看不清楚 换个~~" click="generateCheckCode()"/>	
+		<s:Label text="hollow marshane" x="0" y="200" fontSize="15" color="red" includeIn="hollow"/>	
+	</s:Panel>
+</s:Application>

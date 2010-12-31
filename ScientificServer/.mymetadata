@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="ScientificServer"
+  id="myeclipse.1289998631187"
+  context-root="/ScientificServer"
+  j2ee-spec="5.0"
+  archive="ScientificServer.war">
+  <attributes>
+    <attribute name="webrootdir" value="WebContent" />
+  </attributes>
+</project-module>
+

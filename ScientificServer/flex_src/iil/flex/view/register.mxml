@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600"
+			   fontSize="12" xmlns:view="iil.flex.view.*" xmlns:services="services.*">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	
+	<s:states>
+		<s:State name="Default"/>
+		<s:State name="Register"/>
+	</s:states>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<services:ScientistSrv id="scientistSrv" fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)" showBusyCursor="true">
+			<services:channelSet>
+				<s:ChannelSet>
+					<s:AMFChannel uri="/ScientificServer/messagebroker/amf"/>
+				</s:ChannelSet>
+			</services:channelSet>			
+		</services:ScientistSrv>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			// Import easing classes if you use them only in MXML.
+			//MessagingError message='目标“getAuthorService”不存在，或者目标没有已定义的通道（并且应用程序没有定义任何默认通道）。']
+			//无法建立到“getAuthorService”的连接
+			import mx.controls.Alert;
+			import mx.effects.easing.Bounce;
+		]]>
+	</fx:Script>
+	
+	<!-- Define the transition to animate the change of view state. -->
+	<s:transitions>
+		<s:Transition>
+			<s:Parallel 
+				targets="{[loginPanel, registerLink, loginButton, confirmL,realnameL,telL,emailL,departL]}">
+				<s:Resize duration="500" effectRepeat="Bounce.easeOut"/>
+				<s:Sequence targets="{[confirm,realname,tel,email,areaname,confirmL,realnameL,telL,emailL,departL]}">
+					<mx:Blur duration="200" blurYFrom="1.0" blurYTo="20.0"/>
+					<mx:Blur duration="200" blurYFrom="20.0" blurYTo="1"/>
+				</s:Sequence>
+			</s:Parallel>
+		</s:Transition>
+	</s:transitions>
+	
+	<view:edituserinfo/>
+	
+	<s:Panel id="loginPanel"
+			 title.Default="Login" title.Register="Regist" borderAlpha="0.15" horizontalCenter="0" verticalCenter="022">
+		<mx:Form id="loginForm" color="0x323232">
+			<mx:FormItem label="user name:" id="username">
+				<s:TextInput width.Default="160" width.Register="158"/>
+			</mx:FormItem>
+			<mx:FormItem label="password:" id="password">
+				<mx:TextInput/>
+			</mx:FormItem> 			
+			
+			<mx:FormItem id="confirmL" label="confirm:" includeIn="Register">
+				<mx:TextInput id="confirm"/>
+			</mx:FormItem>			
+			
+			<mx:FormItem id="realnameL" label="Real Name：" includeIn="Register">
+				<mx:TextInput id="realname"/>
+			</mx:FormItem>			
+			
+			<mx:FormItem id="telL" label="TEL：" includeIn="Register">
+				<mx:TextInput id="tel"/>
+			</mx:FormItem>			
+			
+			<mx:FormItem id="emailL" label="Email：" includeIn="Register">
+				<mx:TextInput id="email"/>
+			</mx:FormItem>			
+			
+			<mx:FormItem id="departL" label="depart：" includeIn="Register">
+				<mx:TextInput id="areaname"/>
+			</mx:FormItem>
+			<mx:FormItem direction="horizontal">
+				<mx:Spacer width="100%" id="spacer1"/>
+				<mx:LinkButton id="registerLink"
+							   label="new user" 
+							   click="currentState='Register'" includeIn="Default" />
+				<mx:LinkButton label="Return" click="currentState='Default'" includeIn="Register" />
+				<s:Button label.Default="login" label.Register="Regist" id="loginButton" />
+			</mx:FormItem>	
+		</mx:Form>
+	</s:Panel>
+</s:Application>
+
+

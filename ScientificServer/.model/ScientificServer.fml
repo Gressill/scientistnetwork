@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<model xmlns="http://ns.adobe.com/Fiber/1.0">
+  <annotation name="ActionScriptGeneration">
+    <item name="FullyQualifyReferences">true</item>
+  </annotation>
+  <service name="ScientistSrv">
+    <annotation name="ActionScriptGeneration">
+      <item name="ServiceType">RemoteObject</item>
+      <item name="Package">services</item>
+      <item name="Destination">scientistSrv</item>
+    </annotation>
+    <annotation name="ServiceConfig">
+      <item name="DEFAULT_ENTITY_PACKAGE">valueObjects</item>
+      <item name="contextRoot">/ScientificServer</item>
+      <item name="rootUrl">http://localhost:8080/ScientificServer</item>
+      <item name="ABSOLUTE_ENDPOINT"></item>
+    </annotation>
+    <annotation name="ServiceTypeGroup">
+      <item name="ServiceBackendType">BlazeDS</item>
+    </annotation>
+    <function name="testRelations" return-type="Relations[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">Relations</item>
+      </annotation>
+    </function>
+    <function name="sixDegreeSeparation" arguments="arg0:string,arg1:string" return-type="string[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+    </function>
+    <function name="main" arguments="arg0:string[]" return-type="void">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string</item>
+      </annotation>
+    </function>
+    <function name="startSearch" arguments="arg0:string" return-type="Relations[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string</item>
+        <item name="returnType">Relations</item>
+      </annotation>
+    </function>
+    <function name="relations" arguments="arg0:string" return-type="Relations[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string</item>
+        <item name="returnType">Relations</item>
+      </annotation>
+    </function>
+  </service>
+  <entity name="Relations">
+    <annotation name="EntityProperties">
+      <item name="EntityOriginalName">Relations</item>
+    </annotation>
+    <annotation name="ServerProperties">
+      <item name="RemoteClass">services.flex.Relations</item>
+      <item name="IncludeRemoteClass">nonempty</item>
+    </annotation>
+    <annotation name="service Group">
+      <item name="service">ScientistSrv</item>
+    </annotation>
+    <annotation name="ActionScriptGeneration">
+      <item name="Package">valueObjects</item>
+    </annotation>
+    <property name="paperList" type="string[]"/>
+    <property name="arthorString" type="string"/>
+  </entity>
+  <service name="GetAuthorService">
+    <annotation name="ActionScriptGeneration">
+      <item name="ServiceType">RemoteObject</item>
+      <item name="Package">services</item>
+      <item name="Destination">getAuthorService</item>
+    </annotation>
+    <annotation name="ServiceConfig">
+      <item name="DEFAULT_ENTITY_PACKAGE">valueObjects</item>
+      <item name="contextRoot">/ScientificServer</item>
+      <item name="rootUrl">http://localhost:8080/ScientificServer</item>
+      <item name="LINKED_FILE"></item>
+      <item name="ABSOLUTE_ENDPOINT"></item>
+    </annotation>
+    <annotation name="ServiceTypeGroup">
+      <item name="ServiceBackendType">BlazeDS</item>
+    </annotation>
+    <function name="getAuthors" return-type="Author[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">Author</item>
+      </annotation>
+    </function>
+  </service>
+  <entity name="Author">
+    <annotation name="EntityProperties">
+      <item name="EntityOriginalName">Author</item>
+    </annotation>
+    <annotation name="ServerProperties">
+      <item name="RemoteClass">services.scientist.author.Author</item>
+      <item name="IncludeRemoteClass">nonempty</item>
+    </annotation>
+    <annotation name="service Group">
+      <item name="service">GetAuthorService</item>
+    </annotation>
+    <annotation name="ActionScriptGeneration">
+      <item name="Package">valueObjects</item>
+    </annotation>
+    <property name="uid" type="string"/>
+    <property name="email" type="string"/>
+    <property name="nickname" type="string"/>
+    <property name="department" type="string"/>
+    <property name="realname" type="string"/>
+  </entity>
+</model>

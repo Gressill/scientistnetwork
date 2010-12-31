@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" layout="absolute" width="400" height="300" xmlns:valueObjects="valueObjects.*" xmlns:services="services.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			
+			protected function form_creationCompleteHandler(event:FlexEvent):void
+			{
+				getAuthorsResult.token = getAuthorService.getAuthors();
+			}
+			
+			
+			protected function button_clickHandler(event:MouseEvent):void
+			{
+				author.nickname = nicknameTextInput.text;
+				author.email = emailTextInput.text;
+				author.realname = realnameTextInput.text;
+				author.department = departmentTextInput.text;
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<valueObjects:Author id="author"/>
+		<s:CallResponder id="getAuthorsResult" result="author = getAuthorsResult.lastResult[0] as Author"/>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		
+		<services:GetAuthorService id="getAuthorService" fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)" showBusyCursor="true">
+			<services:channelSet>
+				<s:ChannelSet>
+					<s:AMFChannel uri="/ScientificServer/messagebroker/amf"/>
+				</s:ChannelSet>
+			</services:channelSet>			
+		</services:GetAuthorService>
+	</fx:Declarations>
+	<mx:Form id="form" creationComplete="form_creationCompleteHandler(event)" defaultButton="{button}" x="75" y="56">
+		<mx:FormItem label="Nickname">
+			<s:TextInput id="nicknameTextInput" text="{author.nickname}"/>
+		</mx:FormItem>
+		<mx:FormItem label="Email">
+			<s:TextInput id="emailTextInput" text="{author.email}"/>
+		</mx:FormItem>
+		<mx:FormItem label="Realname">
+			<s:TextInput id="realnameTextInput" text="{author.realname}"/>
+		</mx:FormItem>
+		<mx:FormItem label="Department">
+			<s:TextInput id="departmentTextInput" text="{author.department}"/>
+		</mx:FormItem>
+		<s:Button id="button" label="提交" click="button_clickHandler(event)"/>
+	</mx:Form>
+</mx:Module>

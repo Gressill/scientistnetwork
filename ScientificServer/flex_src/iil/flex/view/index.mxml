@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600"  
+			   xmlns:services="services.*"
+			   initialize="application1_initializeHandler(event)"
+			   applicationComplete="application_CompleteHandler(event)"
+			   pageTitle="Scientist link" xmlns:valueObjects="valueObjects.*">
+	<s:layout>
+		<s:TileLayout/>
+	</s:layout>
+	<fx:Declarations>
+		<s:CallResponder id="testRelationsResult"/>
+		<services:ScientistSrv id="scientistSrv" fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)" showBusyCursor="true">
+			
+			<services:channelSet>
+				<s:ChannelSet>
+					<s:AMFChannel uri="/ScientificServer/messagebroker/amf"/>
+				</s:ChannelSet>
+			</services:channelSet>
+			
+		</services:ScientistSrv>
+		
+		<services:GetAuthorService id="getAuthorService" fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)" showBusyCursor="true">
+			
+			<services:channelSet>
+				<s:ChannelSet>
+					<s:AMFChannel uri="/ScientificServer/messagebroker/amf"/>
+				</s:ChannelSet>
+			</services:channelSet>
+			
+		</services:GetAuthorService>
+		
+		<s:CallResponder id="relationsResult" result="relationsResult_resultHandler(event)"/>
+		<s:CallResponder id="relationsResultSixDS" result="relationsResult_Six(event)"/>
+		<valueObjects:Relations id="relations"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import flash.display.Graphics;
+			import flash.geom.*;
+			
+			import iil.flex.component.Bubbles;
+			import iil.flex.component.Bubbles2;
+			import iil.flex.component.MainStage;
+			import iil.flex.config.Constant;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.*;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import valueObjects.Relations;
+
+			public var myRelation:MainStage;
+			public var userName:String=null;
+			
+			/**
+			 * 画出舞台 
+			 */
+			public function draw():void{
+
+				var ui:UIComponent =new UIComponent(); //flex 中没有UIcomponent将无法显示		
+				
+				//var test:Bubbles = new Bubbles(this.stage.stageWidth,this.stage.stageHeight);
+				//ui.addChild(test);			
+				myRelation = new MainStage(null,parent.width); 
+				ui.addChild(myRelation);
+				this.addElement(ui);//UI添加到舞台
+				
+			}
+			protected function application_CompleteHandler(event:FlexEvent):void
+			{
+				//trace("applicationComplete:" + this.stage.stageWidth);
+				Constant.SCREEN_WIDTH = this.stage.stageWidth;
+				Constant.SCREEN_HEIGHT = this.stage.stageHeight;
+				this.setStyle("backgroundColor",Constant.STAGE_BACKGROUND_COLOR);
+				draw();
+			}
+			/**
+			 * 获取合作者
+			 */
+			public function getCoauthor( name:String):void{	
+				
+				userName = name ;
+				relationsResult.token = scientistSrv.relations(name);
+			}
+			
+			/**
+			 * 获取六度合作者
+			 */
+			public function sixDs(nameForm:String , nameTo:String):void{
+				
+				userName = nameForm ;
+				relationsResultSixDS.token = scientistSrv.sixDegreeSeparation(nameForm,nameTo);
+
+				getCoauthor(nameForm);
+				
+			}
+			
+			/**
+			 * 查询六度合作者
+			 */
+			protected function relationsResult_Six(event:ResultEvent):void
+			{
+
+				var sixResultFromServer:ArrayCollection=event.result as ArrayCollection;
+				
+				myRelation.ShowSixDS(sixResultFromServer,userName);
+
+				//myRelation.ShowMyRelation (data,userName);
+				
+			}		
+			
+			/**
+			 * 查询合作者
+			 */
+			protected function relationsResult_resultHandler(event:ResultEvent):void
+			{
+
+				var data:ArrayCollection=event.result as ArrayCollection;
+
+				myRelation.ShowMyRelation (data,userName);
+				
+			}
+
+
+			protected function application1_initializeHandler(event:FlexEvent):void
+			{
+				//draw();				
+			}
+
+		]]>
+	</fx:Script>
+</s:Application>
