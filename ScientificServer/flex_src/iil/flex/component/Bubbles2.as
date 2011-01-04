@@ -2,6 +2,7 @@ package iil.flex.component
 {
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import iil.flex.relation.ShowCircle;
 	
 	/**
 	 * 多物体基于距离的碰撞检测

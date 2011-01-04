@@ -105,7 +105,11 @@ package iil.flex.component{
 			//var ttt:String = "《"+element+"》"+"\r\n";
 			//trace("ttt is : "+ttt);
 			//txt.appendText(ttt);
-			txt.text += "《"+element+"》"+"\r";
+			txt.multiline = true;
+			txt.textColor = 0xFF0000;
+			var temp:String = "<u><a target='_blank' href='http://arxiv.org/abs/1005.2652'>"+element+"<br>";
+			txt.htmlText += temp;
+			//txt.text += "《"+element+"》"+"\r";
 			//ttt.replace(/^\s*|\s*$/g,"").split(" ").join("")
 		}	
 		

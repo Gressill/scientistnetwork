@@ -15,6 +15,7 @@
 	import mx.rpc.AsyncToken;
 	
 	import valueObjects.Relations;
+	import iil.flex.relation.ShowCircle;
 	
 
 	public class RelationWithoutLine extends Sprite{

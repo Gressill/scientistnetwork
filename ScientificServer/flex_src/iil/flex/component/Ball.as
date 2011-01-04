@@ -21,7 +21,7 @@ package iil.flex.component{
 			//AddEvent();
 		}
 		
-		private function init(alpha:Number=1.0):void {
+		public function init(alpha:Number=1.0):void {
 			graphics.beginFill(color,alpha);
 			graphics.drawCircle(0,0,radius);
 			graphics.endFill();
@@ -39,7 +39,7 @@ package iil.flex.component{
 		
 		//响应鼠标事件函数
 		private function MouseDown(MouseDown:MouseEvent):void{
-			this.startDrag();
+//			this.startDrag();
 			
 		}
 		
