@@ -3,6 +3,9 @@ package services.flex;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+
+import distribution.DistanceDistribution;
 
 public class GetRelationsImpl implements GetRelations{
 
@@ -52,11 +55,19 @@ public class GetRelationsImpl implements GetRelations{
 		return testRelations();
 	}
 	
+	public List<Set<String>> getDegreeDestribution(String name) {
+		DistanceDistribution distanceDistribution = new DistanceDistribution();
+		//GetRelation getRealation = new GetRelation();	
+		//System.out.println(testRelations().size());
+		return distanceDistribution.getDistantsCloud(name);
+	}
+	
 	public static void main(String[] args) {
 		GetRelationsImpl getRelationsImpl = new GetRelationsImpl();
 		//Ren Jie Guido Caldarelli Ginestra Bianconi Albert-László Barabási Zoltán Dezs?
-		getRelationsImpl.relations("Zoltán Dezs?");
+//		getRelationsImpl.relations("Zoltán Dezs?");
 		//getRelationsImpl.sixDegreeSeparation("Yi-Cheng Zhang","barbarsi" );
+		getRelationsImpl.getDegreeDestribution("Yi-Cheng Zhang");
 	}
 	
 //	private void printMap(HashMap<String, List<String>> map,String name) {
