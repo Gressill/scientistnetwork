@@ -1,9 +1,10 @@
-package services.flex;
+package distribution;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -11,11 +12,13 @@ import java.util.TreeSet;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import services.flex.Relations;
 import services.scientist.relation.AuthorpaperDAO;
 import services.scientist.relation.coauthor.Coauth;
 import services.scientist.relation.coauthor.CoauthDAO;
 
-public class SixDegreesSeparation implements Runnable {
+public class DistributionTools {
+
 	private AuthorpaperDAO authorpaperDAO;
 	private ApplicationContext context;
 	private String path = "applicationContext.xml";
@@ -26,15 +29,27 @@ public class SixDegreesSeparation implements Runnable {
 	private HashSet<String> leftSet = new HashSet<String>();
 	private HashSet<String> rightSet = new HashSet<String>();
 
+	public DistributionTools() {
+		context = new ClassPathXmlApplicationContext(path);
+	}
+
+	public ApplicationContext getContext() {
+		return context;
+	}
+
+	public void setContext(ApplicationContext context) {
+		this.context = context;
+	}
+
 	/**
 	 * 六度分离主函数 从韦冬的临时表coauthor里面读取数据,如果没有,就去原始表里面找
 	 * 
 	 * @param name
 	 * @return
 	 */
-	private HashMap<String, List<String>> getSixDegreesSeparation(
+	public HashMap<String, List<String>> getSixDegreesSeparation(
 			String authorOne) {
-		context = new ClassPathXmlApplicationContext(path);
+//		context = new ClassPathXmlApplicationContext(path);
 		CoauthDAO coauthorDAO = new CoauthDAO();
 		coauthorDAO = (CoauthDAO) context.getBean("CoauthDAO");
 		authorOne = authorOne.trim();
@@ -107,8 +122,8 @@ public class SixDegreesSeparation implements Runnable {
 	 * @param name
 	 * @return
 	 */
-	private HashSet<String> getAuthorSet(String authorOne) {
-		context = new ClassPathXmlApplicationContext(path);
+	public HashSet<String> getAuthorSet(String authorOne) {
+//		context = new ClassPathXmlApplicationContext(path);
 		CoauthDAO coauthorDAO = new CoauthDAO();
 		coauthorDAO = (CoauthDAO) context.getBean("CoauthDAO");
 		authorOne = authorOne.trim();
@@ -152,6 +167,57 @@ public class SixDegreesSeparation implements Runnable {
 			return null;
 		}
 	}
+	
+	/**
+	 * 六度分离主函数 从韦冬的临时表coauthor里面读取数据, 这个函数只读取作者!!!!!!!!!!!!!!!!!!!!!!!
+	 * 如果没有,就去原始表里面找
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public int getAuthorSetSize(String authorOne) {
+//		context = new ClassPathXmlApplicationContext(path);
+		CoauthDAO coauthorDAO = new CoauthDAO();
+		coauthorDAO = (CoauthDAO) context.getBean("CoauthDAO");
+		authorOne = authorOne.trim();
+		List<Coauth> coAuthorList = coauthorDAO.findByName(authorOne.trim());
+		// System.out.println("authorOne is "+ coAuthorList.size());
+		if (coAuthorList.size() > 0) {
+			String tempAuthorName = null;
+			HashSet<String> tempAuthorSet = new HashSet<String>();
+			for (Coauth coauthor : coAuthorList) {
+				tempAuthorName = coauthor.getCoauth();
+				// 数据库里面coauthor是很多作者用=来分隔的
+				String[] authorStrings = tempAuthorName.split("=");
+				// 数据库里面有一些空字段
+				if (!tempAuthorName.isEmpty() || tempAuthorName != null) {
+					for (String author : authorStrings) {
+						author = author.trim();
+						if (!author.isEmpty() || author != null) {
+							// 去处相同作者的大小写问题
+							if (!author.equalsIgnoreCase(authorOne)) {
+								// System.out.println("author is :"+author);
+								try {
+									tempAuthorSet.add(author);
+								} catch (Exception e) {
+									System.out.println("add author filed : "
+											+ author);
+									e.printStackTrace();
+								}
+							}
+						}
+					}
+				} else {
+					continue;
+				}
+			}
+			tempAuthorSet.remove(authorOne);
+			return tempAuthorSet.size();
+		} else {
+			// return getRelationFromTempTable(authorOne);
+			return 0;
+		}
+	}
 
 	/**
 	 * 六度分离主函数 从韦冬的临时表coauthor里面读取数据, 这个函数只取authorOne到目标authorTwo一个人的paper
@@ -160,11 +226,11 @@ public class SixDegreesSeparation implements Runnable {
 	 * @param name
 	 * @return
 	 */
-	private ArrayList<String> getAuthorList(String authorOne, String authorTwo,
+	public ArrayList<String> getAuthorList(String authorOne, String authorTwo,
 			boolean flag) {
 		// authorOne = authorOne.trim();
 		// authorTwo = authorTwo.trim();
-		context = new ClassPathXmlApplicationContext(path);
+//		context = new ClassPathXmlApplicationContext(path);
 		CoauthDAO coauthorDAO = new CoauthDAO();
 		coauthorDAO = (CoauthDAO) context.getBean("CoauthDAO");
 		List<Coauth> coAuthorList = coauthorDAO.findByName(authorOne);
@@ -215,6 +281,94 @@ public class SixDegreesSeparation implements Runnable {
 	}
 
 	/**
+	 * 计算关系云分布
+	 */
+	public List<Set<String>> getDistantsCloud(String authorOne) {
+		List<Set<String>> authorList = new ArrayList<Set<String>>();
+		Set<String> historySet = new HashSet<String>();
+		Set<String> firstDegreeSet = new HashSet<String>();
+		firstDegreeSet = getAuthorSet(authorOne);
+		if (firstDegreeSet!=null) {
+			historySet.addAll(firstDegreeSet);
+			Set<String> secondDegreeSet = new HashSet<String>();
+			for (String string : firstDegreeSet) {
+				// System.out.println(string);
+				if (getAuthorSet(string) != null) {
+					Set<String> tempSet = new HashSet<String>();
+					tempSet.addAll(getAuthorSet(string));
+					//historySet.addAll(tempSet);
+					secondDegreeSet.addAll(tempSet);
+				}
+			}
+			secondDegreeSet.removeAll(firstDegreeSet);
+			historySet.addAll(firstDegreeSet);
+			Set<String> thridDegreeSet = new HashSet<String>();
+			for (String string : secondDegreeSet) {
+//				if (!historySet.contains(string)) {
+					if (getAuthorSet(string) != null) {
+						Set<String> tempSet = new HashSet<String>();
+						tempSet.addAll(getAuthorSet(string));
+						historySet.addAll(tempSet);
+						thridDegreeSet.addAll(tempSet);
+					}
+//				}
+			}
+			thridDegreeSet.remove(firstDegreeSet);
+			thridDegreeSet.remove(secondDegreeSet);
+
+			Set<String> fourthDegreeSet = new HashSet<String>();
+			for (String string : thridDegreeSet) {
+//				if (!historySet.contains(string)) {
+					if (getAuthorSet(string) != null) {
+						Set<String> tempSet = new HashSet<String>();
+						tempSet.addAll(getAuthorSet(string));
+						historySet.addAll(tempSet);
+						fourthDegreeSet.addAll(tempSet);
+					}
+//				}
+			}
+			thridDegreeSet.remove(firstDegreeSet);
+			thridDegreeSet.remove(secondDegreeSet);
+			thridDegreeSet.remove(thridDegreeSet);
+
+			authorList.add(firstDegreeSet);
+			authorList.add(secondDegreeSet);
+			System.out.println("size is : " + secondDegreeSet.size());
+			authorList.add(thridDegreeSet);
+			System.out.println("size is : " + thridDegreeSet.size());
+			authorList.add(fourthDegreeSet);
+			System.out.println("size is : " + fourthDegreeSet.size());
+//			printList(authorList);
+			return authorList;
+		}else {
+			return null;
+		}
+	}
+
+	/**
+	 * store unvisited point
+	 * 
+	 * @param unVisitedAuthorList
+	 * @param historyAuthorList
+	 * @return
+	 */
+	public List<String> getList(List<String> unVisitedAuthorList,
+			List<String> historyAuthorList) {
+		List<String> authorList = new ArrayList<String>();
+		Set<String> secondDegreeSet = new HashSet<String>();
+		for (String string : unVisitedAuthorList) {
+			if (!historyAuthorList.contains(string)) {
+				Set<String> tempSet = new HashSet<String>();
+				tempSet.addAll(getAuthorSet(string));
+				historyAuthorList.addAll(tempSet);
+				secondDegreeSet.addAll(tempSet);
+			}
+		}
+		secondDegreeSet.removeAll(historyAuthorList);
+		return authorList;
+	}
+
+	/**
 	 * 六度分离主函数 <br>
 	 * 从韦冬的临时表coauthor里面读取数据,如果没有,就去原始表里面找 <br>
 	 * 已经遍历过的点虽然可能不和目标节点直接联系 但是却和可能和目标节点的邻居有直接联系， 所以并不是说已经遍历过了就不再遍历了
@@ -223,8 +377,8 @@ public class SixDegreesSeparation implements Runnable {
 	 * @param name
 	 * @return
 	 */
-	private List<String> sixDegreesSeparation(String authorOne, String authorTwo) {
-		System.out.println("from "+authorOne+" to "+ authorTwo);
+	public List<String> sixDegreesSeparation(String authorOne, String authorTwo) {
+		System.out.println("from " + authorOne + " to " + authorTwo);
 		authorOne = authorOne.trim();
 		authorTwo = authorTwo.trim();
 		List<String> sixDegreesList = new ArrayList<String>();
@@ -299,14 +453,15 @@ public class SixDegreesSeparation implements Runnable {
 						} else {// 没有交集
 							// 左边第四度,右边第一度,然后求交集
 							// (0,1,2,3--3,2,1,0)
-//							HashSet<String> tempRight2HashSet = (HashSet<String>) this.rightSet.clone();
-//							tempList = getConnectionFromSet(
-//									leftSecondDegreeVisitedAuthorSet,
-//									tempRight2HashSet);
-//							if (tempList != null) {
-//								sixDegreesList.addAll(tempList);
-//								return sixDegreesList;
-//							}
+							// HashSet<String> tempRight2HashSet =
+							// (HashSet<String>) this.rightSet.clone();
+							// tempList = getConnectionFromSet(
+							// leftSecondDegreeVisitedAuthorSet,
+							// tempRight2HashSet);
+							// if (tempList != null) {
+							// sixDegreesList.addAll(tempList);
+							// return sixDegreesList;
+							// }
 						}
 						counter = 4;
 
@@ -338,7 +493,7 @@ public class SixDegreesSeparation implements Runnable {
 	 * @param authorTwo
 	 * @return
 	 */
-	private List<String> getConnectionFromSet(HashSet<String> tempLeftSet,
+	public List<String> getConnectionFromSet(HashSet<String> tempLeftSet,
 			String authorTwo) {
 		List<String> tempList = null;
 		for (String string : tempLeftSet) {
@@ -370,7 +525,7 @@ public class SixDegreesSeparation implements Runnable {
 	 * @param tempRightSet
 	 * @return
 	 */
-	private List<String> getConnectionFromSet(HashSet<String> tempLeftSet,
+	public List<String> getConnectionFromSet(HashSet<String> tempLeftSet,
 			HashSet<String> tempRightSet) {
 		List<String> tempList = null;
 		HashSet<String> TempCoauthorSet = null;
@@ -399,7 +554,7 @@ public class SixDegreesSeparation implements Runnable {
 	 * @param authorTwo
 	 * @return
 	 */
-	private List<String> getConnection(String authorOne, String authorTwo) {
+	public List<String> getConnection(String authorOne, String authorTwo) {
 
 		authorOne = authorOne.trim();
 		authorTwo = authorTwo.trim();
@@ -419,7 +574,7 @@ public class SixDegreesSeparation implements Runnable {
 	 * @param authorTwo
 	 * @return
 	 */
-	private List<String> getConnection(HashSet<String> tempLeftSet,
+	public List<String> getConnection(HashSet<String> tempLeftSet,
 			String authorTwo) {
 		authorTwo = authorTwo.trim();
 		List<String> sixDegreesList = new ArrayList<String>();
@@ -465,7 +620,7 @@ public class SixDegreesSeparation implements Runnable {
 	 * @param tempRightSet
 	 * @return
 	 */
-	private List<String> getConnection(String authorOne,
+	public List<String> getConnection(String authorOne,
 			HashSet<String> tempRightSet) {
 		return getConnection(tempRightSet, authorOne);
 	}
@@ -476,7 +631,7 @@ public class SixDegreesSeparation implements Runnable {
 	 * @param preSet
 	 * @return
 	 */
-	private Set<String> getNextDegreeAuthorSet(Set<String> preSet) {
+	public Set<String> getNextDegreeAuthorSet(Set<String> preSet) {
 		Set<String> tempSet = null;
 		for (String string : preSet) {
 			tempSet.addAll(getAuthorSet(string));
@@ -491,7 +646,7 @@ public class SixDegreesSeparation implements Runnable {
 	 * @param authorNext
 	 * @return
 	 */
-	private ArrayList<String> buildSixList(List<String> sixList,
+	public ArrayList<String> buildSixList(List<String> sixList,
 			String authorPre) {
 		ArrayList<String> tempList = new ArrayList<String>();
 		for (String string : sixList) {
@@ -499,7 +654,7 @@ public class SixDegreesSeparation implements Runnable {
 			if (getAuthorList(authorPre, string, true) != null) {
 				tempList.addAll(getAuthorList(authorPre, string, true));
 				authorPre = string;
-			} else if(getAuthorList(authorPre, string, false) != null){				
+			} else if (getAuthorList(authorPre, string, false) != null) {
 				tempList.addAll(getAuthorList(string, authorPre, false));
 				authorPre = string;
 			}
@@ -550,9 +705,16 @@ public class SixDegreesSeparation implements Runnable {
 	// }
 	// }
 
-	public static void printList(List<String> list) {
-		for (String element : list) {
-			System.out.println("-->" + element);
+	public static void printList(List list) {
+		for (int i = 0; i < list.size(); i++) {
+			if (list.get(i) instanceof List) {
+				for (Iterator iterator = list.iterator(); iterator.hasNext();) {
+					String string = (String) iterator.next();
+					System.out.println("-->" + string);
+				}
+			} else {
+				System.out.println("-->" + list.get(i));
+			}
 		}
 	}
 
@@ -575,22 +737,23 @@ public class SixDegreesSeparation implements Runnable {
 	}
 
 	/**
-	 * 存在问题，大小写问题，六度搜索时候输入的用户名大小写不对可能会导致结果异常
-	 * 原因是数据路里面就大小写有问题，比如chuang Li和Chuang Liu数据库里面就是不同的记录
+	 * 存在问题，大小写问题，六度搜索时候输入的用户名大小写不对可能会导致结果异常 原因是数据路里面就大小写有问题，比如chuang Li和Chuang
+	 * Liu数据库里面就是不同的记录
+	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		SixDegreesSeparation sixDegreesSeparation = new SixDegreesSeparation();
+		DistributionTools distributionTools = new DistributionTools();
 		// OscarG.Calderón Lai Chin Lu Gang Yan Albert-LászlóBarabási
 		// Albert-László Barabási Matus Medo wei-kang yuan
 		// getRealation.createReations("Yi-Cheng Zhang");
 		List<String> list = null;
-		// sixDegreesSeparation Albert-László Barabási
-		list = sixDegreesSeparation.sixDegreesSeparation("Jie Ren",
+		// sixDegreesSeparation
+		list = distributionTools.sixDegreesSeparation("Jie Ren",
 				"Albert-László Barabási");
 		System.out.println("our coauthor list is: " + list.size());
-		if (list != null && list.size()>0) {
-			list = sixDegreesSeparation.buildSixList(list, "Jie Ren");
+		if (list != null && list.size() > 0) {
+			list = distributionTools.buildSixList(list, "Jie Ren");
 			System.out.println("our coauthor list is: " + list.size());
 			printList(list);
 		} else {
@@ -640,7 +803,7 @@ public class SixDegreesSeparation implements Runnable {
 		return sixList;
 	}
 
-	private void clearLeftRightSet() {
+	public void clearLeftRightSet() {
 		this.leftSet.clear();
 		this.rightSet.clear();
 	}

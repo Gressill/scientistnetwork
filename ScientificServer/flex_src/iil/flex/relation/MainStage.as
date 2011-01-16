@@ -7,16 +7,21 @@ package iil.flex.relation{
 	import flash.external.ExternalInterface;
 	import flash.geom.Point;
 	
+	import iil.flex.component.RelationTag;
 	import iil.flex.component.SearchBox;
 	import iil.flex.config.Constant;
 	
 	import mx.collections.ArrayCollection;
-	import iil.flex.component.RelationTag;
+	import mx.core.FlexGlobals;
+	import mx.states.State;
+	
+	import spark.components.Application;
 	
 	public class MainStage extends Sprite{
 		
 //		private var relation:RelationWithoutLine = null;
 		private var relation : Relation = null;
+		private var cloud : Cloud = null;
 		private var search:SearchBox = null;
 		private var sixDegreeSep:SixDegreesSeparation=null;
 		private var tag:RelationTag=null;
@@ -30,7 +35,7 @@ package iil.flex.relation{
 			}
 			
 			//添加搜索框
-			search = new SearchBox(); 
+			search = new SearchBox("relation"); 
 			search.y=-15;
 			search.x=args[1]/2 - search.width/2;
 			addChild(search);
@@ -69,8 +74,8 @@ package iil.flex.relation{
 		 * 开始查询
 		 */ 
 		public function ShowMyRelation(relationDataFromServer:ArrayCollection,mainName:String):void{
-			trace("mainName is : "+mainName);
-			trace("relationDataFromServer is : "+relationDataFromServer);
+//			trace("mainName is : "+mainName);
+//			trace("relationDataFromServer is : "+relationDataFromServer);
 			if(relation)
 				RemoveRelation();
 			
@@ -81,6 +86,24 @@ package iil.flex.relation{
 			addChild(relation);
 //			addChildAt(relation,0);
 		}
+		
+		/**
+		 * 开始cloud查询
+		 */ 
+		public function ShowCloud(authorArray:ArrayCollection,mainName:String):void{
+//			trace("mainName is : "+mainName);
+//			trace("relationDataFromServer is : "+authorArray);
+			if(cloud)
+				RemoveCloud();
+			
+			cloud = new Cloud(Constant.SCREEN_WIDTH,Constant.SCREEN_HEIGHT,authorArray,mainName);
+			//			relation = new RelationWithoutLine(obj,mainName);
+			
+//			cloud.y=Constant.RELATION_Y;
+			addChild(cloud);
+			//			addChildAt(relation,0);
+		}
+		
 		//展示六度
 		public function ShowSixDS(sixResultFromServer:ArrayCollection,mainName:String):void{
 			
@@ -88,6 +111,8 @@ package iil.flex.relation{
 				RemoveSixDegrees();
 			if(relation)
 				RemoveRelation();
+			if(cloud)
+				RemoveCloud();
 			
 			sixDegreeSep = new SixDegreesSeparation(sixResultFromServer,mainName);
 			sixDegreeSep.x=getWinSize.width/2 - sixDegreeSep.width/2+70;
@@ -104,10 +129,15 @@ package iil.flex.relation{
 				RemoveRelation();
 			//切换到六度搜索
 			removeChild(search);
-			search = new SearchBox(false);
+			if(cloud){
+				RemoveCloud();
+//				cloud.visible = false;
+			}
+			search = new SearchBox("sixDS");
 			search.y=-15;
 			addChild(search);
 //			addChildAt(search,0);
+			FlexGlobals.topLevelApplication.currentState = "normal";
 		}
 		
 		//切换六度到关系
@@ -115,10 +145,36 @@ package iil.flex.relation{
 			if(sixDegreeSep)
 				RemoveSixDegrees();
 			removeChild(search);
-			search = new SearchBox();
+			if(cloud){
+				RemoveCloud();
+//				cloud.visible = false;
+			}
+			search = new SearchBox("relation");
 			search.y=-15;
 			addChild(search);
 //			addChildAt(search,0);
+			FlexGlobals.topLevelApplication.currentState = "normal";
+		}
+		
+		//切换到cloud
+		public function SetCloudSearch():void{
+			if(cloud)
+				RemoveCloud();
+			removeChild(search);
+			if(sixDegreeSep){
+				RemoveSixDegrees();
+//				removeChild(sixDegreeSep);
+			}
+			if(relation){
+				RemoveRelation();
+//				relation.visible=false;
+			}
+			search = new SearchBox("cloud");
+			search.y=-15;
+			addChild(search);
+//			var state:State = "history";
+			FlexGlobals.topLevelApplication.currentState = "normal";//setState();
+			//			addChildAt(search,0);
 		}
 		
 		//移除六度显示
@@ -132,6 +188,12 @@ package iil.flex.relation{
 		public function RemoveRelation():void{
 			this.removeChild(relation);
 			relation =null;
+		}
+		
+		//移除cloud
+		public function RemoveCloud():void{
+			this.removeChild(cloud);
+			cloud =null;
 		}
 	}
 }

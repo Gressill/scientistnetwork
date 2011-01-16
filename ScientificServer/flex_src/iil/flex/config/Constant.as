@@ -11,6 +11,8 @@ package iil.flex.config
 		public static var NAME_TEXT_COLOR:uint = 0xffffff;
 		public static var SIX_DRGREE_CIRCLE_COLOR:uint = 0x89d650;
 		public static var STAGE_BACKGROUND_COLOR:uint = 0x000000;
+		public static var degreeColor2:Array = [0x594540,0x6b5a52,0xa6897c,0xdbcfca];
+		public static var degreeColor:Array = [0xfe4365,0xfc9d9a,0xc8c8a9,0x83af9b];//0xf9cdad,3
 		
 		public static var removeArticleBox:Boolean = true;
 		public static var isArticleBoxExist:Boolean = false;
@@ -24,7 +26,9 @@ package iil.flex.config
 		public static var RELATION_Y:uint = 100;//Relation的起点纵坐标
 		
 		public static var SCREEN_WIDTH:uint = 800;
-		public static var SCREEN_HEIGHT:uint = 600;		
+		public static var SCREEN_HEIGHT:uint = 600;
+		
+		public static var TYPE_TAG:String = "article";//articel or name
 		
 		public function Constant()
 		{

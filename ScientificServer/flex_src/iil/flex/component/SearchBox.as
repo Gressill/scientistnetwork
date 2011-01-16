@@ -34,9 +34,9 @@ package iil.flex.component{
 //		public var inputTo :TextInput = null ;
 		
 		public var button :SpecialButton = null;
-		private var style:Boolean =true;
+		private var style:String ="relation";
 		
-		public function SearchBox(style:Boolean =true){
+		public function SearchBox(style:String ="relation"){
 			this.style=style;
 			 DrawUI();
 			 AddEvent();
@@ -58,14 +58,18 @@ package iil.flex.component{
 			this.graphics.drawRoundRect(0,0,w,h,15,15);			
 			//input.stage.focus(input);
 			
-			if(this.style){
+			if(this.style=="relation"){
 				//关系搜索
 				Constant.RELATION_Y = 100;
 				RelationSearch();
-			}else{
+			}else if(this.style=="sixDS"){
 				//六度
 				Constant.RELATION_Y = 200;
 				SixDegreesSeparation();
+			}else{
+				//Cloud搜索
+				Constant.RELATION_Y = 100;
+				cloudSearch();
 			}
 		}
 		private function AddEvent():void{
@@ -83,25 +87,45 @@ package iil.flex.component{
 		}
 		
 		private function ButtonClick():void{
-			
-			if(this.style){
-				
+			FlexGlobals.topLevelApplication.currentState = "normal";
+			if(this.style=="relation"){
 				if(input.text!="")
 					//Application.application.getCoauthor(input.text);
 					FlexGlobals.topLevelApplication.getCoauthor(input.text);
 				else
-					Alert.show(Constant.NO_AUTHOR_NAME,"Warning");					
-				
-			}else{
-				
+					Alert.show(Constant.NO_AUTHOR_NAME,"Warning");	
+			}else if(this.style=="sixDS"){
+				//六度
 				if(input.text!="" && inputTo.text!="")
 					//Application.application.sixDs(input.text,inputTo.text);
 					FlexGlobals.topLevelApplication.sixDs(input.text,inputTo.text);
 				else
-					
+					Alert.show(Constant.NO_AUTHOR_NAME,"Warning");
+			}else if(this.style=="cloud"){
+				//Cloud搜索
+				if(input.text!="")
+					//Application.application.getCoauthor(input.text);
+					FlexGlobals.topLevelApplication.getCloud(input.text);
+				else
 					Alert.show(Constant.NO_AUTHOR_NAME,"Warning");
 			}
 			
+//			if(this.style){
+//				
+//				if(input.text!="")
+//					//Application.application.getCoauthor(input.text);
+//					FlexGlobals.topLevelApplication.getCoauthor(input.text);
+//				else
+//					Alert.show(Constant.NO_AUTHOR_NAME,"Warning");					
+//				
+//			}else{
+//				
+//				if(input.text!="" && inputTo.text!="")
+//					//Application.application.sixDs(input.text,inputTo.text);
+//					FlexGlobals.topLevelApplication.sixDs(input.text,inputTo.text);
+//				else
+//					Alert.show(Constant.NO_AUTHOR_NAME,"Warning");
+//			}
 		}
 		
 		//关系是搜索样式
@@ -141,6 +165,24 @@ package iil.flex.component{
 			button.x = 310;
 			button.y=30;
 			addChild(button);		
+		}
+		
+		//Cloud搜索样式
+		public function cloudSearch():void{
+			//搜索框
+			input = CreateTextField (10,32,290,20,true);
+			//input.text ="zi-ke zhang";
+			
+			addChild(input);
+			
+			//添加搜索按钮
+			button = new SpecialButton(60,24,"cloud",0xffffff);
+			//设置button点击回调函数
+			button.CallClick = ButtonClick;
+			button.x = 310;
+			button.y=30;
+			addChild(button);
+			
 		}
 		
         private function CreateTextField(x:Number, y:Number, width:Number, height:Number , input:Boolean = false ):TextField {

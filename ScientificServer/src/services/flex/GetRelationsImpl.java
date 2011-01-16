@@ -3,8 +3,10 @@ package services.flex;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import distribution.DegreeDistribution;
 import distribution.DistanceDistribution;
 
 public class GetRelationsImpl implements GetRelations{
@@ -60,6 +62,17 @@ public class GetRelationsImpl implements GetRelations{
 		//GetRelation getRealation = new GetRelation();	
 		//System.out.println(testRelations().size());
 		return distanceDistribution.getDistantsCloud(name);
+	}
+	
+	public List<List<Integer>> getPowerLawDestribution(String tag) {
+		DegreeDistribution degreeDistribution = new DegreeDistribution();
+		List<List<Integer>> degreeList = new ArrayList<List<Integer>>();
+		System.err.println(System.getProperty("user.dir"));
+		degreeList.add(degreeDistribution.getDegreeData("../webapps/ScientificServer/WEB-INF/config/degree_name_number.txt"));
+		degreeList.add(degreeDistribution.getDegreeData("../webapps/ScientificServer/WEB-INF/config/degree_coauthor_name.txt"));
+//		return degreeDistribution.getDegreeData("G:/data/program temp data/degree_coauthor_name.txt");
+//		return degreeDistribution.getDegreeData("G:/data/program temp data/degree_name_number.txt");
+		return degreeList;
 	}
 	
 	public static void main(String[] args) {

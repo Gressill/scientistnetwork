@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="80%" height="80%"
+		 xmlns:services="services.*" x="200" y="100"
+		 initialize="application_initializeHandler(event)" 
+		 creationComplete="group1_creationCompleteHandler(event)"
+		 pageTitle="Power law" xmlns:valueObjects="valueObjects.*">
+	<s:layout>
+		<s:TileLayout/>
+	</s:layout>
+	<s:states>
+		<s:State name="degree"/>
+		<s:State name="chartable"/>
+	</s:states>
+	<fx:Declarations>
+		<services:ScientistSrv id="scientistSrv" fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)" showBusyCursor="true">
+			
+			<services:channelSet>
+				<s:ChannelSet>
+					<s:AMFChannel uri="/ScientificServer/messagebroker/amf"/>
+				</s:ChannelSet>
+			</services:channelSet>
+			
+		</services:ScientistSrv>
+		
+		<s:CallResponder id="degreeCloud" result="degreeCloud_resultHandler(event)"/>
+		<valueObjects:Relations id="relations"/>
+		
+		<!-- Define custom colors for use as plot point fills. -->
+		<mx:SolidColor id="sc1" color="blue" alpha=".3" />
+		
+		<!-- Define custom SolidColorStrokes. -->
+		<mx:SolidColorStroke id="s1" color="blue" weight="1"/>
+		<mx:SolidColorStroke id="s2" color="red" weight="1"/>
+		
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import flash.display.Graphics;
+			import flash.geom.*;
+			
+			import iil.flex.component.Bubbles;
+			import iil.flex.component.Bubbles2;
+			import iil.flex.component.HexCylinder;
+			import iil.flex.config.Constant;
+			import iil.flex.relation.Cloud;
+			import iil.flex.relation.MainStage;
+			import iil.flex.relation.RotateY;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.core.*;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import valueObjects.Relations;
+			
+			public var myRelation:MainStage;
+			public var userName:String=null;
+			
+			private var aperAuthorArray:ArrayCollection = new ArrayCollection();
+			private var coauthAuthorArray:ArrayCollection = new ArrayCollection();
+			
+			/**
+			 * 画出舞台 
+			 */
+			public function draw():void {
+				var ui:UIComponent =new UIComponent(); //flex 中没有UIcomponent将无法显示		
+				
+				//				var test:Bubbles = new Bubbles(this.stage.stageWidth,this.stage.stageHeight);
+				//				var test:RotateY = new RotateY(600,400);
+				//				var test:Cloud = new Cloud(Constant.SCREEN_WIDTH,Constant.SCREEN_HEIGHT,authorArray);
+				//				ui.addChild(test);
+				//				myRelation = new MainStage(null,parent.width); 
+				//				ui.addChild(myRelation);
+				this.addElement(ui);//UI添加到舞台
+				
+			}
+			
+			/**
+			 * 返回合作者云
+			 */
+			protected function degreeCloud_resultHandler(event:ResultEvent):void {
+				trace("handle");
+				var tempArray:ArrayCollection=event.result as ArrayCollection;
+//				for each(var k in tempArray){
+//					trace("k is : "+ k);
+//				}
+				for(var i:int = 0; i < tempArray.getItemAt(0).length; i=i+2){
+					//					trace("asdas "+ tempArray.getItemAt(i));
+					var tempObj:Object = {};//{ Month: "Jan", Profit: 2000, Expenses: 1500, Amount: 450 },
+					tempObj.x = tempArray.getItemAt(0).getItemAt(i);
+					tempObj.y = tempArray.getItemAt(0).getItemAt(i+1);
+					//					trace("tempObj.x is : "+ tempObj.x);
+					//					trace("tempObj.y is : "+ tempObj.y);
+					//					trace("tempObj is "+tempObj);
+					aperAuthorArray.addItem(tempObj);
+				}
+				for(var i:int = 0; i < tempArray.getItemAt(1).length; i=i+2){
+					//					trace("asdas "+ tempArray.getItemAt(i));
+					var tempObj:Object = {};//{ Month: "Jan", Profit: 2000, Expenses: 1500, Amount: 450 },
+					tempObj.x = tempArray.getItemAt(1).getItemAt(i);
+					tempObj.y = tempArray.getItemAt(1).getItemAt(i+1);
+					//					trace("tempObj.x is : "+ tempObj.x);
+					//					trace("tempObj.y is : "+ tempObj.y);
+					//					trace("tempObj is "+tempObj);
+					coauthAuthorArray.addItem(tempObj);
+				}
+				draw();
+			}
+			
+			public function getCloud():void{
+				trace("get");
+				degreeCloud.token = scientistSrv.getPowerLawDestribution("Jie Ren");
+				//				degreeCloud.addEventListener(ResultEvent.RESULT,degreeCloud_resultHandler);
+			}
+			
+			protected function application_initializeHandler(event:FlexEvent):void	{
+				getCloud();
+				//draw();				
+			}
+			
+			protected function group1_creationCompleteHandler(event:FlexEvent):void {
+				//trace("applicationComplete:" + this.stage.stageWidth);
+//				Constant.SCREEN_WIDTH = this.stage.stageWidth;
+//				Constant.SCREEN_HEIGHT = this.stage.stageHeight;
+				this.move(Constant.SCREEN_WIDTH/4,Constant.SCREEN_WIDTH/6);
+//				this.setStyle("backgroundColor",Constant.STAGE_BACKGROUND_COLOR);
+				//				draw();
+			}
+
+		]]>
+	</fx:Script>
+	<mx:TabNavigator id="tabNavigator"
+					 width="100%"
+					 height="100%">
+		<mx:HBox label="Paper/Author" >
+			<mx:PlotChart id="paperAuthorChart" 
+						  dataProvider="{aperAuthorArray}"
+						  showDataTips="true"
+						  width="100%"
+						  height="100%">
+				<mx:series>
+					<mx:PlotSeries
+						xField="x"
+						yField="y"
+						displayName="Paper/Author"
+						fill="{sc1}"
+						stroke="{s1}"/>
+				</mx:series>
+			</mx:PlotChart>
+			<mx:Legend dataProvider="{paperAuthorChart}"/>
+			
+			<mx:PlotChart id="paperAuthorChartLnChart" 
+						  dataProvider="{aperAuthorArray}"
+						  showDataTips="true"
+						  width="100%"
+						  height="100%">
+				<mx:verticalAxis>
+					<mx:LogAxis interval="10"/>
+				</mx:verticalAxis>
+				<mx:horizontalAxis>
+					<mx:LogAxis interval="10"/>
+				</mx:horizontalAxis>
+				<mx:series>
+					<mx:PlotSeries
+						xField="x"
+						yField="y"
+						displayName="Paper/Author"
+						fill="{sc1}"
+						stroke="{s1}"/>
+				</mx:series>
+			</mx:PlotChart>
+			<mx:Legend dataProvider="{paperAuthorChartLnChart}"/>
+		</mx:HBox>
+		
+		<mx:HBox label="Coauth/Author">
+			<mx:PlotChart id="coauthAuthorChart" 
+						  dataProvider="{coauthAuthorArray}"
+						  showDataTips="true"
+						  width="100%"
+						  height="100%">
+				<mx:series>
+					<mx:PlotSeries
+						xField="x"
+						yField="y"
+						displayName="Coauth/Author"
+						fill="{sc1}"
+						stroke="{s1}"/>
+				</mx:series>
+			</mx:PlotChart>
+			<mx:Legend dataProvider="{coauthAuthorChart}"/>
+			
+			<mx:PlotChart id="coauthAuthorLnChart" 
+						  dataProvider="{coauthAuthorArray}"
+						  showDataTips="true"
+						  width="100%"
+						  height="100%">
+				<mx:verticalAxis>
+					<mx:LogAxis interval="10"/>
+				</mx:verticalAxis>
+				<mx:horizontalAxis>
+					<mx:LogAxis interval="10"/>
+				</mx:horizontalAxis>
+				<mx:series>
+					<mx:PlotSeries
+						xField="x"
+						yField="y"
+						displayName="Coauth/Author"
+						fill="{sc1}"
+						stroke="{s1}"/>
+				</mx:series>
+			</mx:PlotChart>
+			<mx:Legend dataProvider="{coauthAuthorLnChart}"/>
+		</mx:HBox>
+	</mx:TabNavigator>
+	
+	<!--s:Panel title="History Datas">
+		<s:layout>
+			<s:HorizontalLayout/>
+		</s:layout>
+		
+		<mx:PlotChart id="plChart" 
+					  dataProvider="{authorArray}"
+					  showDataTips="true"
+					  width="100%"
+					  height="100%">
+			<mx:series>
+				<mx:PlotSeries
+					xField="x"
+					yField="y"
+					displayName="author/paper"
+					fill="{sc1}"
+					stroke="{s1}"/>
+			</mx:series>
+		</mx:PlotChart>
+		<mx:Legend dataProvider="{plChart}"/>
+		
+		<mx:PlotChart id="plLnChart" 
+					  dataProvider="{authorArray}"
+					  showDataTips="true"
+					  width="100%"
+					  height="100%">
+			<mx:verticalAxis>
+				<mx:LogAxis interval="10"/>
+			</mx:verticalAxis>
+			<mx:horizontalAxis>
+				<mx:LogAxis interval="10"/>
+			</mx:horizontalAxis>
+			<mx:series>
+				<mx:PlotSeries
+					xField="x"
+					yField="y"
+					displayName="author/paper"
+					fill="{sc1}"
+					stroke="{s1}"/>
+			</mx:series>
+		</mx:PlotChart>
+		<mx:Legend dataProvider="{plLnChart}"/>
+	</s:Panel-->
+</s:Group>

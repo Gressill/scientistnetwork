@@ -35,8 +35,6 @@ package iil.flex.component{
 			
 			AddEvent();
 			DrawUI(width , height , name ,fontColor ,fontSize);
-			
-			
  		}
 		
 		private function DrawUI(width:uint , height:uint , name:String ,fontColor:uint ,fontSize:uint ):void{

@@ -27,9 +27,10 @@ package iil.flex.component{
 		private var txtformat :TextFormat = null ;
 		//public var isArticleBoxExist:Boolean = true;
 		
-		public function ArticleList ( article : Array ){
+		public function ArticleList ( article : Array ,typeTag:String = "article"){
 			//this.setArticle(article);// = article;
 			this.Article = article;
+			Constant.TYPE_TAG = typeTag;
 			//trace("article.length is: "+Article.length);
 			if(article){
 				//addEvent();				
@@ -106,8 +107,13 @@ package iil.flex.component{
 			//trace("ttt is : "+ttt);
 			//txt.appendText(ttt);
 			txt.multiline = true;
-			txt.textColor = 0xFF0000;
-			var temp:String = "<u><a target='_blank' href='http://arxiv.org/abs/1005.2652'>"+element+"<br>";
+			txt.textColor = 0x000000;
+			var temp:String = "";
+			if(Constant.TYPE_TAG == "name"){
+				temp = "<u><a target='_blank' href='http://arxiv.org/abs/1005.2652'>"+element+"<br>";
+			}else{
+				temp = "<u><a target='_blank' href='http://arxiv.org/abs/1005.2652'>"+"《"+element+"》<br>";
+			}
 			txt.htmlText += temp;
 			//txt.text += "《"+element+"》"+"\r";
 			//ttt.replace(/^\s*|\s*$/g,"").split(" ").join("")

@@ -30,6 +30,7 @@ package  iil.flex.component{
 			this.buttonMode = true;
 			this.useHandCursor = true;
 			this.Article = articleList;
+			Constant.TYPE_TAG = "relation";
 			AddEvent();
 			DrawLine(point);
 		}

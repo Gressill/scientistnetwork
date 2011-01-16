@@ -95,7 +95,6 @@ package iil.flex.component
 		private function MouseOut(Mouse_Event:MouseEvent):void{
 			
 			if(!isNow){
-				
 				Mouse.cursor ="auto";
 				var TimeOut:Timer = new Timer(this.rate,this.times);
 				TimeOut.start ();

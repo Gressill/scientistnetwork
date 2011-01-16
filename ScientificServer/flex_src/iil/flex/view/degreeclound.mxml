@@ -4,15 +4,15 @@
 			   xmlns:s="library://ns.adobe.com/flex/spark" 
 			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600"  
 			   xmlns:services="services.*"
-			   initialize="application1_initializeHandler(event)"
+			   initialize="application_initializeHandler(event)"
 			   applicationComplete="application_CompleteHandler(event)"
-			   pageTitle="Scientist link" xmlns:valueObjects="valueObjects.*" xmlns:view="iil.flex.view.*">
+			   pageTitle="Scientist link" xmlns:valueObjects="valueObjects.*">
 	<s:layout>
-		<s:BasicLayout/>
+		<s:TileLayout/>
 	</s:layout>
 	<s:states>
-		<s:State name="normal"/>
-		<s:State name="history"/>
+		<s:State name="degree"/>
+		<s:State name="chartable"/>
 	</s:states>
 	<fx:Declarations>
 		<s:CallResponder id="testRelationsResult"/>
@@ -50,51 +50,44 @@
 			import iil.flex.component.Bubbles2;
 			import iil.flex.component.HexCylinder;
 			import iil.flex.config.Constant;
+			import iil.flex.relation.Cloud;
 			import iil.flex.relation.MainStage;
 			import iil.flex.relation.RotateY;
 			
 			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
 			import mx.controls.Alert;
 			import mx.core.*;
 			import mx.events.FlexEvent;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-			import mx.states.State;
 			
 			import valueObjects.Relations;
-
+			
 			public var myRelation:MainStage;
 			public var userName:String=null;
+			
+			private var authorArray:ArrayCollection;
 			
 			/**
 			 * 画出舞台 
 			 */
-			public function draw():void{
-
+			public function draw():void {
 				var ui:UIComponent =new UIComponent(); //flex 中没有UIcomponent将无法显示		
 				
 //				var test:Bubbles = new Bubbles(this.stage.stageWidth,this.stage.stageHeight);
 //				var test:RotateY = new RotateY(600,400);
-//				var test:HexCylinder = new HexCylinder(100,200);
-//				ui.addChild(test);			
-				myRelation = new MainStage(null,parent.width); 
-				ui.addChild(myRelation);
+				var test:Cloud = new Cloud(Constant.SCREEN_WIDTH,Constant.SCREEN_HEIGHT,authorArray,userName);
+				ui.addChild(test);
+//				myRelation = new MainStage(null,parent.width); 
+//				ui.addChild(myRelation);
 				this.addElement(ui);//UI添加到舞台
 				
-			}
-			protected function application_CompleteHandler(event:FlexEvent):void
-			{
-				//trace("applicationComplete:" + this.stage.stageWidth);
-				Constant.SCREEN_WIDTH = this.stage.stageWidth;
-				Constant.SCREEN_HEIGHT = this.stage.stageHeight;
-				this.setStyle("backgroundColor",Constant.STAGE_BACKGROUND_COLOR);
-				draw();
 			}
 			/**
 			 * 获取合作者
 			 */
-			public function getCoauthor( name:String):void{	
-				
+			public function getCoauthor( name:String):void {	
 				userName = name ;
 				relationsResult.token = scientistSrv.relations(name);
 			}
@@ -102,48 +95,27 @@
 			/**
 			 * 获取六度合作者
 			 */
-			public function sixDs(nameForm:String , nameTo:String):void{
-				
+			public function sixDs(nameForm:String , nameTo:String):void {
 				userName = nameForm ;
 				relationsResultSixDS.token = scientistSrv.sixDegreeSeparation(nameForm,nameTo);
-
 				getCoauthor(nameForm);
-				
 			}
 			
 			/**
 			 * 查询六度合作者
 			 */
-			protected function relationsResult_Six(event:ResultEvent):void
-			{
-
+			protected function relationsResult_Six(event:ResultEvent):void {
 				var sixResultFromServer:ArrayCollection=event.result as ArrayCollection;
-				
 				myRelation.ShowSixDS(sixResultFromServer,userName);
-
 				//myRelation.ShowMyRelation (data,userName);
-				
 			}		
 			
 			/**
 			 * 查询合作者
 			 */
-			protected function relationsResult_resultHandler(event:ResultEvent):void
-			{
-
+			protected function relationsResult_resultHandler(event:ResultEvent):void {
 				var data:ArrayCollection=event.result as ArrayCollection;
-
 				myRelation.ShowMyRelation (data,userName);
-				
-			}
-			/**
-			 *cloud search 
-			 */
-			public function getCloud(name:String):void{
-				trace("get");
-				userName = name ;
-				degreeCloud.token = scientistSrv.getDegreeDestribution(userName);
-				//				degreeCloud.addEventListener(ResultEvent.RESULT,degreeCloud_resultHandler);
 			}
 			
 			/**
@@ -151,43 +123,33 @@
 			 */
 			protected function degreeCloud_resultHandler(event:ResultEvent):void {
 				trace("handle");
-				//var data:ArrayCollection=event.result as ArrayCollection;
-				var authorArray:ArrayCollection = event.result as ArrayCollection;
-				myRelation.ShowCloud(authorArray,userName);
-			}
-			protected function application1_initializeHandler(event:FlexEvent):void
-			{
-				//draw();				
-			}
-			public function setHistoryState():void
-			{
-				this.currentState = "history";
-			}
-
-			public function setNormalState():void
-			{
-				this.currentState = "normal";
-			}
-
-			protected function normal_clickHandler(event:MouseEvent):void
-			{
-				setHistoryState();
-//				trace(Constant.SCREEN_WIDTH+"  "+Constant.SCREEN_HEIGHT);
-//				historyView.move(Constant.SCREEN_WIDTH/6,Constant.SCREEN_HEIGHT/4);
+//				var data:ArrayCollection=event.result as ArrayCollection;
+				authorArray = event.result as ArrayCollection;
+				draw();
+//				for each(var k in authorArray){
+//					trace("k is : "+ k.length);
+//				}
 			}
 			
-			protected function history_clickHandler(event:MouseEvent):void
-			{
-				setNormalState();
+			public function getCloud():void{
+				trace("get");
+				degreeCloud.token = scientistSrv.getDegreeDestribution("Jie Ren");
+//				degreeCloud.addEventListener(ResultEvent.RESULT,degreeCloud_resultHandler);
 			}
-
-			protected function historyView_creationCompleteHandler(event:FlexEvent):void
-			{
-				historyView.move(Constant.SCREEN_WIDTH/6,Constant.SCREEN_HEIGHT/4);
+			
+			protected function application_initializeHandler(event:FlexEvent):void	{
+				getCloud();
+				//draw();				
 			}
-
+			
+			protected function application_CompleteHandler(event:FlexEvent):void {
+				//trace("applicationComplete:" + this.stage.stageWidth);
+				Constant.SCREEN_WIDTH = this.stage.stageWidth;
+				Constant.SCREEN_HEIGHT = this.stage.stageHeight;
+				this.setStyle("backgroundColor",Constant.STAGE_BACKGROUND_COLOR);
+//				draw();
+			}
+			
 		]]>
 	</fx:Script>
-	<view:historyOverView id="historyView" includeIn="history" creationComplete="historyView_creationCompleteHandler(event)"/>
-	<s:Button x="250" y="9" label="按钮" click.normal="normal_clickHandler(event)" click.history="history_clickHandler(event)" label.normal="Data" chromeColor.normal="#FF0000" id="historyBtn" chromeColor.history="#FF0000" label.history="Cancel"/>
 </s:Application>
