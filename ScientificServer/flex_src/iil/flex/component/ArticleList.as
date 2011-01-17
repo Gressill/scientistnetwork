@@ -110,9 +110,9 @@ package iil.flex.component{
 			txt.textColor = 0x000000;
 			var temp:String = "";
 			if(Constant.TYPE_TAG == "name"){
-				temp = "<u><a target='_blank' href='http://arxiv.org/abs/1005.2652'>"+element+"<br>";
+				temp = "<u><a target='_blank' href='http://arxiv.org/find/all/1/au:+Stauffer_Dietrich/0/1/0/all/0/1'>"+element+"<br>";
 			}else{
-				temp = "<u><a target='_blank' href='http://arxiv.org/abs/1005.2652'>"+"《"+element+"》<br>";
+				temp = "<u><a target='_blank' href='http://pre.aps.org/abstract/PRE/v52/i6/p6303_1'>"+"《"+element+"》<br>";
 			}
 			txt.htmlText += temp;
 			//txt.text += "《"+element+"》"+"\r";

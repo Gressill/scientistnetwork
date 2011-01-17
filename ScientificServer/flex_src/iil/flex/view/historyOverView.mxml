@@ -138,7 +138,7 @@
 					 width="100%"
 					 height="100%">
 		<mx:HBox label="Paper/Author" >
-			<mx:PlotChart id="paperAuthorChart" 
+			<!--mx:PlotChart id="paperAuthorChart" 
 						  dataProvider="{aperAuthorArray}"
 						  showDataTips="true"
 						  width="100%"
@@ -152,7 +152,7 @@
 						stroke="{s1}"/>
 				</mx:series>
 			</mx:PlotChart>
-			<mx:Legend dataProvider="{paperAuthorChart}"/>
+			<mx:Legend dataProvider="{paperAuthorChart}"/-->
 			
 			<mx:PlotChart id="paperAuthorChartLnChart" 
 						  dataProvider="{aperAuthorArray}"
@@ -175,24 +175,6 @@
 				</mx:series>
 			</mx:PlotChart>
 			<mx:Legend dataProvider="{paperAuthorChartLnChart}"/>
-		</mx:HBox>
-		
-		<mx:HBox label="Coauth/Author">
-			<mx:PlotChart id="coauthAuthorChart" 
-						  dataProvider="{coauthAuthorArray}"
-						  showDataTips="true"
-						  width="100%"
-						  height="100%">
-				<mx:series>
-					<mx:PlotSeries
-						xField="x"
-						yField="y"
-						displayName="Coauth/Author"
-						fill="{sc1}"
-						stroke="{s1}"/>
-				</mx:series>
-			</mx:PlotChart>
-			<mx:Legend dataProvider="{coauthAuthorChart}"/>
 			
 			<mx:PlotChart id="coauthAuthorLnChart" 
 						  dataProvider="{coauthAuthorArray}"
@@ -216,6 +198,24 @@
 			</mx:PlotChart>
 			<mx:Legend dataProvider="{coauthAuthorLnChart}"/>
 		</mx:HBox>
+		
+		<!--mx:HBox label="Coauth/Author">
+			<mx:PlotChart id="coauthAuthorChart" 
+						  dataProvider="{coauthAuthorArray}"
+						  showDataTips="true"
+						  width="100%"
+						  height="100%">
+				<mx:series>
+					<mx:PlotSeries
+						xField="x"
+						yField="y"
+						displayName="Coauth/Author"
+						fill="{sc1}"
+						stroke="{s1}"/>
+				</mx:series>
+			</mx:PlotChart>
+			<mx:Legend dataProvider="{coauthAuthorChart}"/>
+		</mx:HBox-->
 	</mx:TabNavigator>
 	
 	<!--s:Panel title="History Datas">

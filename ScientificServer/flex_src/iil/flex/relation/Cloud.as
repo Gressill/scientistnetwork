@@ -150,6 +150,7 @@ package iil.flex.relation
 //			centerBall.Article = null;
 //			this.addChild(centerBall);
 			
+			Constant.TYPE_TAG = "name";
 			trace("centerX is "+centerX +". centerY is "+centerY)
 			var centerBall:AuthorPoint = new AuthorPoint(centerX,centerY,name,6,0xcbfd03);
 //			centerBall.x=Constant.CENTERX;

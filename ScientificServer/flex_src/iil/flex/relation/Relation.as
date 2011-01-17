@@ -258,13 +258,13 @@
 		private function MouseDown(event:MouseEvent):void{
 			//if()
 			//onEnterFrame(event);
-			this.startDrag();
+//			this.startDrag();
 			
 		}
 		
 		private function MouseUp(event:MouseEvent):void{
 			
-			this.stopDrag();
+//			this.stopDrag();
 			
 		}		
 	}
