@@ -141,10 +141,13 @@ public class GetRelation implements Runnable {
 		if (coAuthorList.size() > 0) {
 			String tempAuthorName = null;
 			String tempPaperName = null;
+			String tempDoi = null;
 			HashMap<String, List<String>> authorpaperMap = new HashMap<String, List<String>>();
 			for (Coauth coauthor : coAuthorList) {
 				tempAuthorName = coauthor.getCoauth();
 				tempPaperName = coauthor.getTitle().trim();
+				tempDoi = coauthor.getUrl();
+				tempPaperName = tempPaperName+"="+tempDoi;
 				// 数据库里面coauthor是很多作者用=来分隔的
 				String[] authorStrings = tempAuthorName.split("=");
 				// 数据库里面有一些空字段
