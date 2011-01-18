@@ -109,10 +109,33 @@ package iil.flex.component{
 			txt.multiline = true;
 			txt.textColor = 0x000000;
 			var temp:String = "";
+			if(element.length>0)
+			{
+				var paperUrl:Array = element.split("=");
+			}
 			if(Constant.TYPE_TAG == "name"){
-				temp = "<u><a target='_blank' href='http://arxiv.org/find/all/1/au:+Stauffer_Dietrich/0/1/0/all/0/1'>"+element+"<br>";
+				var tempAuthorSplit:Array = paperUrl[0].split(" ");
+				var tempAuthor:String = "";
+				for each(var k:String in tempAuthorSplit){
+					tempAuthor += k;
+					tempAuthor +="_";
+				}
+				tempAuthor = tempAuthor.substr(0,tempAuthor.length-1);
+				//http://publish.aps.org/search/field/author/Stauffer_Dietrich
+				temp = "<u><a target='_blank' href='http://publish.aps.org/search/field/author/"+tempAuthor+"'>"+paperUrl[0]+"<br>";
 			}else{
-				temp = "<u><a target='_blank' href='http://pre.aps.org/abstract/PRE/v52/i6/p6303_1'>"+"《"+element+"》<br>";
+				var tempUrl = "";
+				if(paperUrl.length>1){
+					if(paperUrl[1].indexOf("arXiv:")>=0){
+						paperUrl[1] = paperUrl[1].substr(6,paperUrl[1].length-1);
+						tempUrl = "http://arxiv.org/abs/"+paperUrl[1];
+					}else{
+						tempUrl = "http://link.aps.org/doi/"+paperUrl[1];
+					}
+				}
+//				temp = "<u><a target='_blank' href='http://pre.aps.org/abstract/PRE/v52/i6/p6303_1'>"+"《"+element+"》<br>";
+				temp = "<u><a target='_blank' href='"+tempUrl+"'>"+"《"+paperUrl[0]+"》<br>";
+//				http://link.aps.org/doi/10.1103/PhysRevE.52.6303
 			}
 			txt.htmlText += temp;
 			//txt.text += "《"+element+"》"+"\r";
